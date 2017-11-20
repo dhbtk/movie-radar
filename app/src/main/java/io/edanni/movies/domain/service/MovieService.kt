@@ -15,9 +15,9 @@ import javax.inject.Inject
  */
 class MovieService
 @Inject constructor(retrofit: Retrofit) {
-    val movieApi: MovieApi = retrofit.create(MovieApi::class.java)
-    var configuration: Configuration? = null
-    var genres: List<Genre>? = null
+    private val movieApi: MovieApi = retrofit.create(MovieApi::class.java)
+    private var configuration: Configuration? = null
+    private var genres: List<Genre>? = null
 
     /**
      * Lists upcoming movies by page, optionally filtering the results.

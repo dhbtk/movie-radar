@@ -6,7 +6,7 @@ import org.threeten.bp.LocalDate
  * Created by eduardo on 19/11/2017.
  */
 data class Movie(
-        val posterPath: String,
+        val posterPath: String? = null,
         val adult: Boolean,
         val overview: String,
         val releaseDate: LocalDate,
@@ -16,7 +16,7 @@ data class Movie(
         val originalTitle: String,
         val originalLanguage: String,
         val title: String,
-        val backdropPath: String,
+        val backdropPath: String? = null,
         val popularity: Double,
         val voteCount: Long,
         val video: Boolean,

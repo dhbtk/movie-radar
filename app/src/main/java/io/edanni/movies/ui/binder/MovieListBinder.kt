@@ -16,9 +16,13 @@ class MovieListBinder {
         fun bind(movie: Movie, layout: FrameLayout, context: Context) {
             val image = layout.findViewById<ImageView>(R.id.moviePoster)
             val label = layout.findViewById<TextView>(R.id.movieTitle)
-            val picasso = Picasso.with(context)
-            picasso.setIndicatorsEnabled(true)
-            picasso.load(movie.posterPath).into(image)
+            if (movie.posterPath != null) {
+                val picasso = Picasso.with(context)
+                picasso.setIndicatorsEnabled(true)
+                picasso.load(movie.posterPath).into(image)
+            } else {
+                image.setBackgroundColor(context.resources.getColor(R.color.colorPrimaryDark, context.theme))
+            }
             label.text = movie.title
         }
     }
