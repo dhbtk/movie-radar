@@ -29,6 +29,6 @@ class MovieListActivity : AppCompatActivity() {
         movieService.getUpcomingMovies(1, "")
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ movieListAdapter.movies = it.results })
+                .subscribe({ movieListAdapter.movies = it.results }, { throw it })
     }
 }

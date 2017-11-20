@@ -22,7 +22,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val layout: FrameLayout = convertView as FrameLayout? ?: (inflater.inflate(R.layout.movie_list_item, parent) as FrameLayout)
+        val layout: FrameLayout = convertView as FrameLayout? ?: (inflater.inflate(R.layout.movie_list_item, parent, false) as FrameLayout)
         MovieListBinder.bind(movies[position], layout, context)
         return layout
     }
