@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import io.edanni.movies.domain.service.MovieService
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -31,15 +32,20 @@ class ApplicationModule(private val application: Application) {
 
     @Provides
     @Singleton
-    fun okHttpClient(application: Application): OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val request = chain.request()
-                val url = request.url().newBuilder()
-                        .addQueryParameter("api_key", application.resources.getString(R.string.movie_api_key))
-                        .build()
-                chain.proceed(request.newBuilder().url(url).build())
-            }
-            .build()
+    fun okHttpClient(application: Application): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.HEADERS
+        return OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    val url = request.url().newBuilder()
+                            .addQueryParameter("api_key", application.resources.getString(R.string.movie_api_key))
+                            .build()
+                    chain.proceed(request.newBuilder().url(url).build())
+                }
+                .build()
+    }
 
     @Provides
     @Singleton

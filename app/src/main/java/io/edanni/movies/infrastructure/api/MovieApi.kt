@@ -13,15 +13,15 @@ import rx.Observable
  * Created by eduardo on 20/11/2017.
  */
 interface MovieApi {
-    @GET("/configuration")
+    @GET("configuration")
     fun getConfiguration(): Observable<Configuration>
 
-    @GET("/genre/movie/list")
+    @GET("genre/movie/list")
     fun getGenres(): Observable<Genres>
 
-    @GET("/movie/upcoming")
+    @GET("movie/upcoming")
     fun getUpcomingMovies(@Query("page") page: Int): Observable<Movies>
 
-    @GET("/movie/{id}")
+    @GET("movie/{id}")
     fun getMovie(@Path("id") id: Long): Observable<Movie>
 }
