@@ -1,5 +1,6 @@
 package io.edanni.movies.infrastructure.api.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.threeten.bp.LocalDate
 import java.io.Serializable
 
@@ -11,7 +12,7 @@ data class Movie(
         val adult: Boolean,
         val overview: String,
         val releaseDate: LocalDate,
-        val genreIds: List<Long>,
+        val genreIds: List<Long> = emptyList(),
         val genres: List<Genre> = emptyList(),
         val id: Long,
         val originalTitle: String,
@@ -22,7 +23,7 @@ data class Movie(
         val voteCount: Long,
         val video: Boolean,
         val voteAverage: Long,
-        val imdbId: Long = 0,
+        val imdbId: String = "",
         val productionCompanies: List<ProductionCompany> = emptyList(),
         val productionCountries: List<ProductionCountry> = emptyList(),
         val revenue: Long = 0,
@@ -48,5 +49,5 @@ data class Dates(
 ) : Serializable
 
 data class ProductionCompany(val id: Long, val name: String) : Serializable
-data class ProductionCountry(val iso31661: String, val name: String) : Serializable
-data class SpokenLanguage(val iso6391: String, val name: String) : Serializable
+data class ProductionCountry(@JsonProperty("iso_3166_1") val iso31661: String, val name: String) : Serializable
+data class SpokenLanguage(@JsonProperty("iso_639_1") val iso6391: String, val name: String) : Serializable

@@ -29,9 +29,11 @@ class MovieListActivity : AppCompatActivity() {
 
     private var moviePage: Movies? = null
 
-    private var loadingMovies: Boolean = false
+    private var loadingMovies = false
 
-    private var filter: String = ""
+    private var loadingMovie = false
+
+    private var filter = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +48,7 @@ class MovieListActivity : AppCompatActivity() {
         this.refreshLayout.setOnRefreshListener { this.refreshMovieList(swipe = true) }
 
         if (savedInstanceState == null) {
-            refreshMovieList()
+            refreshMovieList(initial = true)
         }
     }
 
@@ -67,13 +69,26 @@ class MovieListActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun showMovieDetail(movie: Movie) {
-        startActivity(intentFor<MovieDetailActivity>("movie" to movie))
+    private fun showMovieDetail(listMovie: Movie) {
+        if (!loadingMovie) {
+            loadingMovie = true
+            startLoading(top = true)
+            movieService.getMovieDetails(listMovie.id)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ movie ->
+                        stopLoading()
+                        startActivity(intentFor<MovieDetailActivity>("movie" to movie))
+                    }, {
+                        stopLoading()
+                        showError(it)
+                    })
+        }
     }
 
-    private fun refreshMovieList(filter: String = this.filter, swipe: Boolean = false) {
+    private fun refreshMovieList(filter: String = this.filter, swipe: Boolean = false, initial: Boolean = false) {
         if (!loadingMovies) {
-            startLoading(swipe)
+            startLoading(swipe, initial)
             movieService.getUpcomingMovies(1, filter)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -88,15 +103,19 @@ class MovieListActivity : AppCompatActivity() {
         }
     }
 
-    private fun startLoading(swipe: Boolean = false) {
+    private fun startLoading(swipe: Boolean = false, top: Boolean = false) {
         loadingMovies = true
-        if (!swipe) {
-            this.progressBar.visibility = VISIBLE
+        if (!swipe && !top) {
+            this.bottomProgressBar.visibility = VISIBLE
+        }
+        if (top) {
+            this.topProgressBar.visibility = VISIBLE
         }
     }
 
     private fun stopLoading() {
-        this.progressBar.visibility = INVISIBLE
+        this.bottomProgressBar.visibility = INVISIBLE
+        this.topProgressBar.visibility = INVISIBLE
         this.refreshLayout.isRefreshing = false
         loadingMovies = false
     }
