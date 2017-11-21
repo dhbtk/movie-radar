@@ -5,9 +5,11 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.AbsListView
+import android.widget.Toast
 import io.edanni.movies.Application
 import io.edanni.movies.R
 import io.edanni.movies.domain.service.MovieService
+import io.edanni.movies.infrastructure.api.dto.MovieList
 import io.edanni.movies.infrastructure.api.dto.Movies
 import io.edanni.movies.ui.adapter.MovieListAdapter
 import kotlinx.android.synthetic.main.activity_movie_list.*
@@ -40,11 +42,29 @@ class MovieListActivity : AppCompatActivity() {
 
         this.refreshLayout.setOnRefreshListener { this.refreshMovieList(swipe = true) }
 
-        refreshMovieList()
+        if (savedInstanceState == null) {
+            refreshMovieList()
+        }
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        moviePage = savedInstanceState?.getSerializable("moviePage") as Movies?
+        movieListAdapter.movies = (savedInstanceState?.getSerializable("movies") as MovieList?)?.list!!
+        filter = savedInstanceState?.getString("filter")!!
+        val firstVisibleIndex: Int = savedInstanceState.getInt("firstVisibleIndex")
+        this.gridView.smoothScrollToPosition(firstVisibleIndex)
+    }
 
-    private fun refreshMovieList(filter: String = "", swipe: Boolean = false) {
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable("moviePage", moviePage)
+        outState?.putSerializable("movies", MovieList(movieListAdapter.movies))
+        outState?.putString("filter", filter)
+        outState?.putInt("firstVisibleIndex", this.gridView.firstVisiblePosition)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun refreshMovieList(filter: String = this.filter, swipe: Boolean = false) {
         if (!loadingMovies) {
             startLoading(swipe)
             movieService.getUpcomingMovies(1, filter)
@@ -56,7 +76,7 @@ class MovieListActivity : AppCompatActivity() {
                         stopLoading()
                     }, {
                         stopLoading()
-                        throw it
+                        showError(it)
                     })
         }
     }
@@ -72,6 +92,10 @@ class MovieListActivity : AppCompatActivity() {
         this.progressBar.visibility = INVISIBLE
         this.refreshLayout.isRefreshing = false
         loadingMovies = false
+    }
+
+    private fun showError(error: Throwable) {
+        Toast.makeText(this, this.resources.getString(R.string.error_loading_movies, error.message), Toast.LENGTH_LONG).show()
     }
 
     inner class GridScrollListener : AbsListView.OnScrollListener {
@@ -90,7 +114,7 @@ class MovieListActivity : AppCompatActivity() {
                                 stopLoading()
                             }, {
                                 stopLoading()
-                                throw it
+                                showError(it)
                             })
                 }
             }
