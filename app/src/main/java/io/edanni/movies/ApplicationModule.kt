@@ -11,7 +11,7 @@ import io.edanni.movies.domain.service.MovieService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import javax.inject.Singleton
 
@@ -51,7 +51,7 @@ class ApplicationModule(private val application: Application) {
     @Singleton
     fun retrofit(objectMapper: ObjectMapper, okHttpClient: OkHttpClient, application: Application): Retrofit =
             Retrofit.Builder()
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                     .client(okHttpClient)
                     .baseUrl(application.resources.getString(R.string.movie_api_base_url))

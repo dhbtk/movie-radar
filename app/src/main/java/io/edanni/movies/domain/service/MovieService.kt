@@ -4,9 +4,10 @@ import io.edanni.movies.infrastructure.api.MovieApi
 import io.edanni.movies.infrastructure.api.dto.Configuration
 import io.edanni.movies.infrastructure.api.dto.Movie
 import io.edanni.movies.infrastructure.api.dto.Movies
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.Observables
 import retrofit2.Retrofit
-import rx.Observable
-import rx.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
@@ -21,9 +22,9 @@ class MovieService
      * Lists upcoming movies by page, optionally filtering the results.
      */
     fun getUpcomingMovies(page: Int, filter: String): Observable<Movies> =
-            Observable.zip(fetchConfiguration(),
-                    movieApi.getUpcomingMovies(page).subscribeOn(Schedulers.newThread()),
-                    { configuration, movies -> Pair(configuration, movies) })
+            Observables.zip(fetchConfiguration(),
+                    movieApi.getUpcomingMovies(page),
+                    { configuration, movies: Movies -> Pair(configuration, movies) })
                     .map { (configuration, movies) ->
                         movies.copy(
                                 results = movies.results
@@ -31,15 +32,18 @@ class MovieService
                                         .map { it -> correctImagePaths(it, configuration) }
                         )
                     }
+                    .observeOn(AndroidSchedulers.mainThread())
+
 
     /**
      * Finds the details of a given movie.
      */
     fun getMovieDetails(id: Long): Observable<Movie> =
-            Observable.zip(fetchConfiguration(),
-                    movieApi.getMovie(id).subscribeOn(Schedulers.newThread()),
-                    { configuration, movie -> Pair(configuration, movie) })
+            Observables.zip(fetchConfiguration(),
+                    movieApi.getMovie(id),
+                    { configuration, movie: Movie -> Pair(configuration, movie) })
                     .map { (configuration, movie) -> correctImagePaths(movie, configuration) }
+                    .observeOn(AndroidSchedulers.mainThread())
 
     /**
      * Corrects the movie image paths so that the are full URLs
@@ -68,6 +72,5 @@ class MovieService
                 Observable.just(configuration)
             } else {
                 movieApi.getConfiguration()
-                        .subscribeOn(Schedulers.newThread())
             }
 }
