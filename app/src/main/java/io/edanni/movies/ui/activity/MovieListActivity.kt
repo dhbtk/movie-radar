@@ -1,10 +1,14 @@
 package io.edanni.movies.ui.activity
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.AbsListView
+import android.widget.SearchView
 import android.widget.Toast
 import io.edanni.movies.Application
 import io.edanni.movies.R
@@ -19,7 +23,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import javax.inject.Inject
 
-class MovieListActivity : AppCompatActivity() {
+class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     val TAG = MovieListActivity::class.java.name
 
     @Inject
@@ -50,6 +54,32 @@ class MovieListActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             refreshMovieList(initial = true)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.search_menu, menu)
+
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchView = menu!!.findItem(R.id.search).actionView as SearchView
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.isSubmitButtonEnabled = false
+        searchView.setOnQueryTextListener(this)
+        searchView.setOnCloseListener { filter = ""; refreshMovieList(); false }
+        return true
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        filter = query!!
+        refreshMovieList()
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText == "") {
+            filter = ""
+            refreshMovieList()
+        }
+        return true
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {

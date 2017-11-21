@@ -12,8 +12,11 @@
             android:id="@+id/gridView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:horizontalSpacing="4dp"
             android:numColumns="@integer/movieListColumns"
-            android:stretchMode="columnWidth" />
+            android:padding="4dp"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="4dp" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <ProgressBar
