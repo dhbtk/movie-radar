@@ -19,8 +19,6 @@ import io.edanni.movies.infrastructure.api.dto.Movies
 import io.edanni.movies.ui.adapter.MovieListAdapter
 import kotlinx.android.synthetic.main.activity_movie_list.*
 import org.jetbrains.anko.intentFor
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import javax.inject.Inject
 
 class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
@@ -104,13 +102,13 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             loadingMovie = true
             startLoading(top = true)
             movieService.getMovieDetails(listMovie.id)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ movie ->
                         stopLoading()
                         startActivity(intentFor<MovieDetailActivity>("movie" to movie))
+                        loadingMovie = false
                     }, {
                         stopLoading()
+                        loadingMovie = false
                         showError(it)
                     })
         }
@@ -120,8 +118,6 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         if (!loadingMovies) {
             startLoading(swipe, initial)
             movieService.getUpcomingMovies(1, filter)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ movies ->
                         this.moviePage = movies
                         movieListAdapter.movies = movies.results
@@ -162,8 +158,6 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
                 if (currentPage != null && currentPage.totalPages > currentPage.page) {
                     startLoading()
                     movieService.getUpcomingMovies(currentPage.page + 1, filter)
-                            .subscribeOn(Schedulers.newThread())
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ movies ->
                                 moviePage = movies
                                 movieListAdapter.movies = movieListAdapter.movies + movies.results

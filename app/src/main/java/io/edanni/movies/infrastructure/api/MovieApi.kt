@@ -4,10 +4,10 @@ import io.edanni.movies.infrastructure.api.dto.Configuration
 import io.edanni.movies.infrastructure.api.dto.Genres
 import io.edanni.movies.infrastructure.api.dto.Movie
 import io.edanni.movies.infrastructure.api.dto.Movies
+import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import rx.Observable
 
 /**
  * Created by eduardo on 20/11/2017.
