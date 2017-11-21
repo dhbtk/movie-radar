@@ -61,8 +61,8 @@ class MovieService
 
     private fun processMovie(movie: Movie, configuration: Configuration, genres: List<Genre>) =
             movie.copy(
-                    posterPath = configuration.images.secureBaseUrl + preferredPosterSize(configuration) + movie.posterPath,
-                    backdropPath = configuration.images.secureBaseUrl + preferredBackdropSize(configuration) + movie.backdropPath,
+                    posterPath = if (movie.posterPath == null) null else configuration.images.secureBaseUrl + preferredPosterSize(configuration) + movie.posterPath,
+                    backdropPath = if (movie.backdropPath == null) null else configuration.images.secureBaseUrl + preferredBackdropSize(configuration) + movie.backdropPath,
                     genres = movie.genreIds.map { id -> genres.find { it.id == id } ?: Genre(id, "[Unknown]") }
             )
 
