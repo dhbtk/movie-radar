@@ -38,7 +38,11 @@ class MovieService
                                                 )
                                         )
                                         subscriber.onCompleted()
-                                    }, { subscriber.onError(it) })
+                                    }, {
+                                        subscriber.onError(it)
+                                    })
+                        }, {
+                            subscriber.onError(it)
                         })
             })
 
@@ -56,7 +60,9 @@ class MovieService
                                         subscriber.onNext(processMovie(movie, configuration, genres))
                                         subscriber.onCompleted()
                                     })
-                        }, { subscriber.onError(it) })
+                        }, {
+                            subscriber.onError(it)
+                        })
             })
 
     private fun processMovie(movie: Movie, configuration: Configuration, genres: List<Genre>) =
@@ -90,7 +96,9 @@ class MovieService
                                 subscriber.onStart()
                                 subscriber.onNext(configuration)
                                 subscriber.onCompleted()
-                            }, { subscriber.onError(it) })
+                            }, {
+                                subscriber.onError(it)
+                            })
                 })
             }
 
@@ -108,7 +116,9 @@ class MovieService
                                 subscriber.onStart()
                                 subscriber.onNext(genres.genres)
                                 subscriber.onCompleted()
-                            }, { subscriber.onError(it) })
+                            }, {
+                                subscriber.onError(it)
+                            })
                 })
             }
 }

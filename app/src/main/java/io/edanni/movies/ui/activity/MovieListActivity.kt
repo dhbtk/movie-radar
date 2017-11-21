@@ -2,6 +2,8 @@ package io.edanni.movies.ui.activity
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.AbsListView
 import io.edanni.movies.Application
 import io.edanni.movies.R
@@ -36,27 +38,40 @@ class MovieListActivity : AppCompatActivity() {
         this.gridView.adapter = movieListAdapter
         this.gridView.setOnScrollListener(GridScrollListener())
 
-        this.refreshLayout.setOnRefreshListener { this.refreshMovieList() }
+        this.refreshLayout.setOnRefreshListener { this.refreshMovieList(swipe = true) }
 
         refreshMovieList()
     }
 
-    private fun refreshMovieList(filter: String = "") {
+
+    private fun refreshMovieList(filter: String = "", swipe: Boolean = false) {
         if (!loadingMovies) {
-            loadingMovies = true
+            startLoading(swipe)
             movieService.getUpcomingMovies(1, filter)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ movies ->
                         this.moviePage = movies
                         movieListAdapter.movies = movies.results
-                        this.refreshLayout.isRefreshing = false
-                        loadingMovies = false
+                        stopLoading()
                     }, {
-                        loadingMovies = false
+                        stopLoading()
                         throw it
                     })
         }
+    }
+
+    private fun startLoading(swipe: Boolean = false) {
+        loadingMovies = true
+        if (!swipe) {
+            this.progressBar.visibility = VISIBLE
+        }
+    }
+
+    private fun stopLoading() {
+        this.progressBar.visibility = INVISIBLE
+        this.refreshLayout.isRefreshing = false
+        loadingMovies = false
     }
 
     inner class GridScrollListener : AbsListView.OnScrollListener {
@@ -65,17 +80,16 @@ class MovieListActivity : AppCompatActivity() {
             if (lastItemCount == totalItemCount && !loadingMovies) {
                 val currentPage = moviePage
                 if (currentPage != null && currentPage.totalPages > currentPage.page) {
-                    loadingMovies = true
+                    startLoading()
                     movieService.getUpcomingMovies(currentPage.page + 1, filter)
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ movies ->
                                 moviePage = movies
                                 movieListAdapter.movies = movieListAdapter.movies + movies.results
-                                refreshLayout.isRefreshing = false
-                                loadingMovies = false
+                                stopLoading()
                             }, {
-                                loadingMovies = false
+                                stopLoading()
                                 throw it
                             })
                 }
