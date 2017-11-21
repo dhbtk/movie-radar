@@ -19,6 +19,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.activity.MovieDetailActivity"
+            android:label="@string/title_activity_movie_detail"
+            android:parentActivityName=".ui.activity.MovieListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.edanni.movies.ui.activity.MovieListActivity" />
+        </activity>
     </application>
 
 </manifest>

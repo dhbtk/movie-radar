@@ -9,10 +9,12 @@ import android.widget.Toast
 import io.edanni.movies.Application
 import io.edanni.movies.R
 import io.edanni.movies.domain.service.MovieService
+import io.edanni.movies.infrastructure.api.dto.Movie
 import io.edanni.movies.infrastructure.api.dto.MovieList
 import io.edanni.movies.infrastructure.api.dto.Movies
 import io.edanni.movies.ui.adapter.MovieListAdapter
 import kotlinx.android.synthetic.main.activity_movie_list.*
+import org.jetbrains.anko.intentFor
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import javax.inject.Inject
@@ -37,6 +39,7 @@ class MovieListActivity : AppCompatActivity() {
         Application.injector.inject(this)
 
         movieListAdapter = MovieListAdapter(this)
+        movieListAdapter.movieClickHandler = { showMovieDetail(it) }
         this.gridView.adapter = movieListAdapter
         this.gridView.setOnScrollListener(GridScrollListener())
 
@@ -62,6 +65,10 @@ class MovieListActivity : AppCompatActivity() {
         outState?.putString("filter", filter)
         outState?.putInt("firstVisibleIndex", this.gridView.firstVisiblePosition)
         super.onSaveInstanceState(outState)
+    }
+
+    private fun showMovieDetail(movie: Movie) {
+        startActivity(intentFor<MovieDetailActivity>("movie" to movie))
     }
 
     private fun refreshMovieList(filter: String = this.filter, swipe: Boolean = false) {

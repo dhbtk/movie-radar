@@ -24,10 +24,12 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
             field = value
             notifyDataSetChanged()
         }
+    var movieClickHandler: (Movie) -> Unit = {}
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val layout: ViewGroup = convertView as ViewGroup? ?: (inflater.inflate(R.layout.movie_list_item, parent, false) as ViewGroup)
+        layout.setOnClickListener { onMovieClick(movies[position]) }
         bindView(movies[position], layout)
         return layout
     }
@@ -56,5 +58,11 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
         releaseDate.text = String.format(
                 context.resources.getString(R.string.movie_releases_at),
                 "\n" + dateFormat.format(releaseDateAsDate)).toUpperCase()
+    }
+
+    private fun onMovieClick(movie: Movie) = movieClickHandler(movie)
+
+    interface MovieClickHandler {
+        fun clicked(movie: Movie)
     }
 }
