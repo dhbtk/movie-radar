@@ -22,8 +22,6 @@ import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 
 class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
-    val TAG = MovieListActivity::class.java.name
-
     @Inject
     lateinit var movieService: MovieService
 
