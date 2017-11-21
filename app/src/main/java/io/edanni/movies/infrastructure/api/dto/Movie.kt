@@ -1,6 +1,7 @@
 package io.edanni.movies.infrastructure.api.dto
 
 import org.threeten.bp.LocalDate
+import java.io.Serializable
 
 /**
  * Created by eduardo on 19/11/2017.
@@ -37,7 +38,9 @@ data class Movies(
         val totalResults: Long,
         val dates: Dates,
         val totalPages: Int
-)
+) : Serializable
+
+data class MovieList(val list: List<Movie>) : Serializable
 
 data class Dates(
         val minimum: LocalDate,

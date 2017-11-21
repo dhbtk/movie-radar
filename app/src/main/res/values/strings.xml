@@ -3,4 +3,5 @@
     <string name="movie_api_base_url" translatable="false">https://api.themoviedb.org/3/</string>
     <string name="movie_api_key" translatable="false">1f54bd990f1cdfb230adb312546d765d</string>
     <string name="movie_releases_at">Available %s</string>
+    <string name="error_loading_movies">Error loading movies: %s</string>
 </resources>

@@ -43,9 +43,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
         val movieTitle = layout.findViewById<TextView>(R.id.movieTitle)
         val releaseDate = layout.findViewById<TextView>(R.id.releaseDate)
         if (movie.posterPath != null) {
-            val picasso = Picasso.with(context)
-            picasso.setIndicatorsEnabled(true)
-            picasso.load(movie.posterPath).into(image)
+            Picasso.with(context).load(movie.posterPath).into(image)
             movieTitle.visibility = View.INVISIBLE
         } else {
             movieTitle.visibility = View.VISIBLE
