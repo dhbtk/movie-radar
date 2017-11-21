@@ -5,14 +5,23 @@
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refreshLayout"
-    android:layout_width="match_parent"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <GridView
             android:id="@+id/gridView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:numColumns="@integer/movieListColumns"
             android:stretchMode="columnWidth" />
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:indeterminate="true"
+        android:visibility="invisible" />
 </FrameLayout>
