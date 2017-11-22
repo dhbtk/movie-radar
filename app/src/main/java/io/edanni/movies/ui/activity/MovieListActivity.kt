@@ -101,7 +101,7 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             }
         }
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null || !savedInstanceState.containsKey("moviePage")) {
             refreshMovieList(initial = true)
         }
     }
