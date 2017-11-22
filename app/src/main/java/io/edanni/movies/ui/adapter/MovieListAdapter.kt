@@ -43,6 +43,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
     private fun bindView(movie: Movie, layout: ViewGroup) {
         val image = layout.findViewById<ImageView>(R.id.moviePoster)
         val movieTitle = layout.findViewById<TextView>(R.id.movieTitle)
+        val genre = layout.findViewById<TextView>(R.id.genre)
         val releaseDate = layout.findViewById<TextView>(R.id.releaseDate)
         if (movie.posterPath != null) {
             Picasso.with(context).load(movie.posterPath).into(image)
@@ -52,10 +53,11 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
             image.setImageDrawable(context.resources.getDrawable(R.drawable.poster_placeholder, context.theme))
         }
         movieTitle.text = movie.title.toUpperCase()
+        genre.text = movie.genres.firstOrNull()?.name ?: ""
 
         val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
         val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        releaseDate.text = context.resources.getString(R.string.movie_releases_at, "\n" + dateFormat.format(releaseDateAsDate)).toUpperCase()
+        releaseDate.text = context.resources.getString(R.string.movie_releases_at, dateFormat.format(releaseDateAsDate))
     }
 
     private fun onMovieClick(movie: Movie) = movieClickHandler(movie)
