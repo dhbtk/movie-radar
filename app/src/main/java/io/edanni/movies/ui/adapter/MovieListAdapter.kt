@@ -1,6 +1,7 @@
 package io.edanni.movies.ui.adapter
 
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +51,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
             movieTitle.visibility = View.INVISIBLE
         } else {
             movieTitle.visibility = View.VISIBLE
-            image.setImageDrawable(context.resources.getDrawable(R.drawable.poster_placeholder, context.theme))
+            image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.poster_placeholder))
         }
         movieTitle.text = movie.title.toUpperCase()
         genre.text = movie.genres.firstOrNull()?.name ?: ""

@@ -37,7 +37,7 @@
         android:layout_margin="2dp"
         android:text="Genre"
         android:textAlignment="center"
-        android:textAppearance="@android:style/TextAppearance.Material.Caption" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 
     <TextView
         android:id="@+id/releaseDate"
@@ -45,6 +45,6 @@
         android:layout_height="wrap_content"
         android:text="Available DD/MM/YYYY"
         android:textAlignment="center"
-        android:textAppearance="@android:style/TextAppearance.Material.Caption" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 </LinearLayout>
 
