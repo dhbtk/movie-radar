@@ -18,7 +18,7 @@ import java.text.DateFormat
 import java.util.*
 
 /**
- * Created by eduardo on 20/11/2017.
+ * Adapter for the main movie grid view.
  */
 class MovieListAdapter(private val context: Context) : BaseAdapter() {
     var movies: List<Movie> = emptyList()
@@ -31,7 +31,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val layout: ViewGroup = convertView as ViewGroup? ?: (inflater.inflate(R.layout.movie_list_item, parent, false) as ViewGroup)
-        layout.setOnClickListener { onMovieClick(movies[position]) }
+        layout.setOnClickListener { movieClickHandler(movies[position]) }
         bindView(movies[position], layout)
         return layout
     }
@@ -55,7 +55,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
             image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.poster_placeholder))
         }
         movieTitle.text = movie.title.toUpperCase()
-        genre.text = movie.genres.firstOrNull()?.name ?: ""
+        genre.text = movie.genres.firstOrNull()?.name ?: context.resources.getString(R.string.movie_genre_unavailable)
 
         if (movie.releaseDate != null) {
             val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
@@ -68,11 +68,5 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
         } else {
             releaseDate.text = ""
         }
-    }
-
-    private fun onMovieClick(movie: Movie) = movieClickHandler(movie)
-
-    interface MovieClickHandler {
-        fun clicked(movie: Movie)
     }
 }

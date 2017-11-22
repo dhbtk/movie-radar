@@ -16,10 +16,13 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 import javax.inject.Singleton
 
 /**
- * Created by eduardo on 18/11/2017.
+ * Dagger bean declarations. This is all used to bootstrap the MovieService class.
  */
 @Module
 class ApplicationModule(private val application: Application) {
+    /**
+     * Jackson ObjectMapper for (de)serialization.
+     */
     @Provides
     @Singleton
     fun objectMapper(): ObjectMapper {
@@ -30,11 +33,15 @@ class ApplicationModule(private val application: Application) {
         return objectMapper
     }
 
+    /**
+     * OkHttpClient configuration. We add an API key on every request here, and configure request
+     * logging.
+     */
     @Provides
     @Singleton
     fun okHttpClient(application: Application): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.HEADERS
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
         return OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor { chain ->
@@ -47,6 +54,9 @@ class ApplicationModule(private val application: Application) {
                 .build()
     }
 
+    /**
+     * Retrofit. We configure RxJava integration, serialization and the HTTP client here.
+     */
     @Provides
     @Singleton
     fun retrofit(objectMapper: ObjectMapper, okHttpClient: OkHttpClient, application: Application): Retrofit =
@@ -58,10 +68,16 @@ class ApplicationModule(private val application: Application) {
                     .build()
 
 
+    /**
+     * MovieService, responsible for talking to the TMDB API.
+     */
     @Provides
     @Singleton
     fun movieService(retrofit: Retrofit) = MovieService(retrofit)
 
+    /**
+     * Our main application class.
+     */
     @Provides
     @Singleton
     fun application(): Application = application

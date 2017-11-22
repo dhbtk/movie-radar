@@ -5,7 +5,7 @@ import io.edanni.movies.ui.activity.MovieListActivity
 import javax.inject.Singleton
 
 /**
- * Created by eduardo on 18/11/2017.
+ * Dagger component to inject activities.
  */
 @Singleton
 @Component(modules = arrayOf(ApplicationModule::class))

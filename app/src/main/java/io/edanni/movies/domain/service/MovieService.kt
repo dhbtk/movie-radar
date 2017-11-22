@@ -4,7 +4,7 @@ import io.edanni.movies.infrastructure.api.MovieApi
 import io.edanni.movies.infrastructure.api.dto.Configuration
 import io.edanni.movies.infrastructure.api.dto.Genre
 import io.edanni.movies.infrastructure.api.dto.Movie
-import io.edanni.movies.infrastructure.api.dto.Movies
+import io.edanni.movies.infrastructure.api.dto.MoviePage
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.Observables
@@ -23,12 +23,12 @@ class MovieService
     /**
      * Lists upcoming movies by page.
      */
-    fun getUpcomingMovies(page: Int): Observable<Movies> =
+    fun getUpcomingMovies(page: Int): Observable<MoviePage> =
             Observables.zip(
                     fetchConfiguration(),
                     fetchGenres(),
                     movieApi.getUpcomingMovies(page),
-                    { configuration, genres: List<Genre>, movies: Movies -> Triple(configuration, genres, movies) })
+                    { configuration, genres: List<Genre>, moviePage: MoviePage -> Triple(configuration, genres, moviePage) })
                     .map { (configuration, genres, movies) ->
                         movies.copy(
                                 results = movies.results
@@ -41,7 +41,7 @@ class MovieService
     /**
      * Searches all movies.
      */
-    fun searchMovies(filter: String, page: Int): Observable<Movies> =
+    fun searchMovies(filter: String, page: Int): Observable<MoviePage> =
             Observables.zip(
                     fetchConfiguration(),
                     fetchGenres(),
@@ -76,6 +76,9 @@ class MovieService
                     backdropPath = if (movie.backdropPath == null) null else configuration.images.secureBaseUrl + preferredBackdropSize(configuration) + movie.backdropPath
             )
 
+    /**
+     * Populates the genre list from the genre id list.
+     */
     private fun setGenres(movie: Movie, genres: List<Genre>) =
             movie.copy(genres = movie.genreIds.map { id -> genres.find { it.id == id }!! })
 

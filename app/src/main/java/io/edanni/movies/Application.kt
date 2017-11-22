@@ -4,7 +4,7 @@ import android.support.multidex.MultiDexApplication
 import com.jakewharton.threetenabp.AndroidThreeTen
 
 /**
- * Created by eduardo on 18/11/2017.
+ * Main application class. Used to install MultiDex and to bootstrap Dagger.
  */
 class Application : MultiDexApplication() {
     companion object {

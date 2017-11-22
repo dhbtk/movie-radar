@@ -1,7 +1,7 @@
 package io.edanni.movies.infrastructure.api.dto
 
 /**
- * Created by eduardo on 18/11/2017.
+ * Container class for the API configuration response.
  */
 data class Configuration(
         val images: Images,
