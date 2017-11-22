@@ -1,11 +1,12 @@
 package io.edanni.movies
 
+import android.support.multidex.MultiDexApplication
 import com.jakewharton.threetenabp.AndroidThreeTen
 
 /**
  * Created by eduardo on 18/11/2017.
  */
-class Application : android.app.Application() {
+class Application : MultiDexApplication() {
     companion object {
         @JvmStatic
         lateinit var injector: ApplicationInjector
