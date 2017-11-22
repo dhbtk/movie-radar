@@ -73,7 +73,7 @@ class MovieService
     private fun preferredPosterSize(configuration: Configuration) = configuration.images.posterSizes.find { it == "w342" } ?: "original"
 
     /**
-     * Lazily fetches and caches the API configuration.
+     * Fetches and caches the API configuration.
      */
     private fun fetchConfiguration(): Observable<Configuration> =
             if (configuration != null) {
@@ -83,6 +83,9 @@ class MovieService
                         .map { this.configuration = it; it }
             }
 
+    /**
+     * Fetches and caches the genre list.
+     */
     private fun fetchGenres(): Observable<List<Genre>> =
             if (genres != null) {
                 Observable.just(genres)
