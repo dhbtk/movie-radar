@@ -55,9 +55,7 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
 
         val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
         val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        releaseDate.text = String.format(
-                context.resources.getString(R.string.movie_releases_at),
-                "\n" + dateFormat.format(releaseDateAsDate)).toUpperCase()
+        releaseDate.text = context.resources.getString(R.string.movie_releases_at, "\n" + dateFormat.format(releaseDateAsDate)).toUpperCase()
     }
 
     private fun onMovieClick(movie: Movie) = movieClickHandler(movie)

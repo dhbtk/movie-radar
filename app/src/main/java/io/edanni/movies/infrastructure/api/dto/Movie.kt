@@ -23,11 +23,11 @@ data class Movie(
         val voteCount: Long,
         val video: Boolean,
         val voteAverage: Long,
-        val imdbId: String = "",
+        val imdbId: String? = "",
         val productionCompanies: List<ProductionCompany> = emptyList(),
         val productionCountries: List<ProductionCountry> = emptyList(),
         val revenue: Long = 0,
-        val runtime: Long = 0,
+        val runtime: Int = 0,
         val spokenLanguages: List<SpokenLanguage> = emptyList(),
         val status: String = "",
         val tagline: String = ""
