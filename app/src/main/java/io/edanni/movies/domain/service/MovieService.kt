@@ -80,6 +80,7 @@ class MovieService
                 Observable.just(configuration)
             } else {
                 movieApi.getConfiguration()
+                        .map { this.configuration = it; it }
             }
 
     private fun fetchGenres(): Observable<List<Genre>> =
@@ -88,5 +89,6 @@ class MovieService
             } else {
                 movieApi.getGenres()
                         .map { genres -> genres.genres }
+                        .map { this.genres = it; it }
             }
 }
