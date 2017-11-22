@@ -3,6 +3,8 @@ package io.edanni.movies.ui.activity
 import android.app.SearchManager
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.View.INVISIBLE
@@ -17,23 +19,53 @@ import io.edanni.movies.infrastructure.api.dto.Movie
 import io.edanni.movies.infrastructure.api.dto.MovieList
 import io.edanni.movies.infrastructure.api.dto.Movies
 import io.edanni.movies.ui.adapter.MovieListAdapter
+import io.reactivex.Emitter
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
 import kotlinx.android.synthetic.main.activity_movie_list.*
 import org.jetbrains.anko.intentFor
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+/**
+ *
+ */
 class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+    /**
+     * MovieService responsible for interacting with the API.
+     */
     @Inject
     lateinit var movieService: MovieService
 
+    /**
+     * GridView adapter for showing the movies.
+     */
     lateinit private var movieListAdapter: MovieListAdapter
 
+    /**
+     * Currently loaded page of data.
+     */
     private var moviePage: Movies? = null
 
+    /**
+     * If we are currently loading data.
+     */
     private var loadingMovies = false
 
-    private var loadingMovie = false
+    /**
+     * If we are loading movie details in preparation for launching the MovieDetailActivity
+     */
+    private var loadingMovieDetail = false
 
+    /**
+     * Current search filters.
+     */
     private var filter = ""
+
+    /**
+     * Emmiter for loading events
+     */
+    lateinit private var loadingEmitter: Emitter<LoadingEvent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +78,28 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         this.gridView.setOnScrollListener(GridScrollListener())
 
         this.refreshLayout.setOnRefreshListener { this.refreshMovieList(swipe = true) }
+
+        // Debouncer for loading events. This is mostly necessary for the search since the filtering
+        // is done client-side. This probably pretty far from the ideal solution in many aspects,
+        // but you can't filter by upcoming movies in the API search endpoint.
+        Observable.create({ emitter: ObservableEmitter<LoadingEvent> ->
+            this.loadingEmitter = emitter
+        }).debounce(250, TimeUnit.MILLISECONDS).subscribe { (type, swipe, initial) ->
+            Handler(Looper.getMainLooper()).post {
+                if (type == LoadingEventType.START) {
+                    if (!swipe && !initial) {
+                        this.bottomProgressBar.visibility = VISIBLE
+                    }
+                    if (initial) {
+                        this.topProgressBar.visibility = VISIBLE
+                    }
+                } else {
+                    this.bottomProgressBar.visibility = INVISIBLE
+                    this.topProgressBar.visibility = INVISIBLE
+                    this.refreshLayout.isRefreshing = false
+                }
+            }
+        }
 
         if (savedInstanceState == null) {
             refreshMovieList(initial = true)
@@ -60,7 +114,7 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.isSubmitButtonEnabled = false
         searchView.setOnQueryTextListener(this)
-        searchView.setOnCloseListener { filter = ""; refreshMovieList(); false }
+        searchView.setOnCloseListener { false }
         return true
     }
 
@@ -96,17 +150,17 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     }
 
     private fun showMovieDetail(listMovie: Movie) {
-        if (!loadingMovie) {
-            loadingMovie = true
-            startLoading(top = true)
+        if (!loadingMovieDetail) {
+            loadingMovieDetail = true
+            startLoading(initial = true)
             movieService.getMovieDetails(listMovie.id)
                     .subscribe({ movie ->
                         stopLoading()
                         startActivity(intentFor<MovieDetailActivity>("movie" to movie))
-                        loadingMovie = false
+                        loadingMovieDetail = false
                     }, {
                         stopLoading()
-                        loadingMovie = false
+                        loadingMovieDetail = false
                         showError(it)
                     })
         }
@@ -127,21 +181,14 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    private fun startLoading(swipe: Boolean = false, top: Boolean = false) {
+    private fun startLoading(swipe: Boolean = false, initial: Boolean = false) {
         loadingMovies = true
-        if (!swipe && !top) {
-            this.bottomProgressBar.visibility = VISIBLE
-        }
-        if (top) {
-            this.topProgressBar.visibility = VISIBLE
-        }
+        loadingEmitter.onNext(LoadingEvent(LoadingEventType.START, swipe, initial))
     }
 
     private fun stopLoading() {
-        this.bottomProgressBar.visibility = INVISIBLE
-        this.topProgressBar.visibility = INVISIBLE
-        this.refreshLayout.isRefreshing = false
         loadingMovies = false
+        loadingEmitter.onNext(LoadingEvent(LoadingEventType.STOP, true, true))
     }
 
     private fun showError(error: Throwable) {
@@ -174,3 +221,9 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     }
 }
+
+enum class LoadingEventType {
+    START, STOP
+}
+
+data class LoadingEvent(val type: LoadingEventType, val swipe: Boolean, val initial: Boolean)
