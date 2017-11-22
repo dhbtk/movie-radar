@@ -2,6 +2,7 @@ package io.edanni.movies.domain.service
 
 import io.edanni.movies.infrastructure.api.MovieApi
 import io.edanni.movies.infrastructure.api.dto.Configuration
+import io.edanni.movies.infrastructure.api.dto.Genre
 import io.edanni.movies.infrastructure.api.dto.Movie
 import io.edanni.movies.infrastructure.api.dto.Movies
 import io.reactivex.Observable
@@ -17,19 +18,23 @@ class MovieService
 @Inject constructor(retrofit: Retrofit) {
     private val movieApi: MovieApi = retrofit.create(MovieApi::class.java)
     private var configuration: Configuration? = null
+    private var genres: List<Genre>? = null
 
     /**
      * Lists upcoming movies by page, optionally filtering the results.
      */
     fun getUpcomingMovies(page: Int, filter: String): Observable<Movies> =
-            Observables.zip(fetchConfiguration(),
+            Observables.zip(
+                    fetchConfiguration(),
+                    fetchGenres(),
                     movieApi.getUpcomingMovies(page),
-                    { configuration, movies: Movies -> Pair(configuration, movies) })
-                    .map { (configuration, movies) ->
+                    { configuration, genres: List<Genre>, movies: Movies -> Triple(configuration, genres, movies) })
+                    .map { (configuration, genres, movies) ->
                         movies.copy(
                                 results = movies.results
                                         .filter { it.title.contains(filter, true) }
-                                        .map { it -> correctImagePaths(it, configuration) }
+                                        .map { movie -> correctImagePaths(movie, configuration) }
+                                        .map { movie -> setGenres(movie, genres) }
                         )
                     }
                     .observeOn(AndroidSchedulers.mainThread())
@@ -54,6 +59,9 @@ class MovieService
                     backdropPath = if (movie.backdropPath == null) null else configuration.images.secureBaseUrl + preferredBackdropSize(configuration) + movie.backdropPath
             )
 
+    private fun setGenres(movie: Movie, genres: List<Genre>) =
+            movie.copy(genres = movie.genreIds.map { id -> genres.find { it.id == id }!! })
+
     /**
      * Probably should be chosen depending on device size
      */
@@ -72,5 +80,13 @@ class MovieService
                 Observable.just(configuration)
             } else {
                 movieApi.getConfiguration()
+            }
+
+    private fun fetchGenres(): Observable<List<Genre>> =
+            if (genres != null) {
+                Observable.just(genres)
+            } else {
+                movieApi.getGenres()
+                        .map { genres -> genres.genres }
             }
 }
