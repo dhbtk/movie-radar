@@ -21,9 +21,9 @@ class MovieService
     private var genres: List<Genre>? = null
 
     /**
-     * Lists upcoming movies by page, optionally filtering the results.
+     * Lists upcoming movies by page.
      */
-    fun getUpcomingMovies(page: Int, filter: String): Observable<Movies> =
+    fun getUpcomingMovies(page: Int): Observable<Movies> =
             Observables.zip(
                     fetchConfiguration(),
                     fetchGenres(),
@@ -32,7 +32,24 @@ class MovieService
                     .map { (configuration, genres, movies) ->
                         movies.copy(
                                 results = movies.results
-                                        .filter { it.title.contains(filter, true) }
+                                        .map { movie -> correctImagePaths(movie, configuration) }
+                                        .map { movie -> setGenres(movie, genres) }
+                        )
+                    }
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    /**
+     * Searches all movies.
+     */
+    fun searchMovies(filter: String, page: Int): Observable<Movies> =
+            Observables.zip(
+                    fetchConfiguration(),
+                    fetchGenres(),
+                    movieApi.searchMovies(filter, page),
+                    { configuration, genres, movies -> Triple(configuration, genres, movies) })
+                    .map { (configuration, genres, movies) ->
+                        movies.copy(
+                                results = movies.results
                                         .map { movie -> correctImagePaths(movie, configuration) }
                                         .map { movie -> setGenres(movie, genres) }
                         )

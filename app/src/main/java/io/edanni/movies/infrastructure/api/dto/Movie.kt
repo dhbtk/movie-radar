@@ -11,7 +11,7 @@ data class Movie(
         val posterPath: String? = null,
         val adult: Boolean,
         val overview: String,
-        val releaseDate: LocalDate,
+        val releaseDate: LocalDate? = null,
         val genreIds: List<Long> = emptyList(),
         val genres: List<Genre> = emptyList(),
         val id: Long,
@@ -37,7 +37,7 @@ data class Movies(
         val results: List<Movie>,
         val page: Int,
         val totalResults: Long,
-        val dates: Dates,
+        val dates: Dates? = null,
         val totalPages: Int
 ) : Serializable
 
