@@ -31,9 +31,13 @@ class MovieDetailActivity : AppCompatActivity() {
         this.genreList.text = movie.genres.map { it.name }.joinToString()
         this.runtime.text = renderRuntime(movie)
 
-        val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
-        val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        this.releaseDate.text = resources.getString(R.string.movie_release_date_label, dateFormat.format(releaseDateAsDate))
+        if (movie.releaseDate != null) {
+            val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
+            val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+            this.releaseDate.text = resources.getString(R.string.movie_release_date_label, dateFormat.format(releaseDateAsDate))
+        } else {
+            this.releaseDate.text = resources.getString(R.string.movie_release_date_unknown)
+        }
 
         this.overviewText.text = movie.overview
     }

@@ -10,7 +10,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
- * Created by eduardo on 20/11/2017.
+ * Retrofit interface for the TMDB API.
  */
 interface MovieApi {
     @GET("configuration")
@@ -21,6 +21,9 @@ interface MovieApi {
 
     @GET("movie/upcoming")
     fun getUpcomingMovies(@Query("page") page: Int): Observable<Movies>
+
+    @GET("search/movie")
+    fun searchMovies(@Query("query") filter: String, @Query("page") page: Int): Observable<Movies>
 
     @GET("movie/{id}")
     fun getMovie(@Path("id") id: Long): Observable<Movie>

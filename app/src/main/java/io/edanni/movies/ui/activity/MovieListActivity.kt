@@ -77,7 +77,7 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         this.gridView.adapter = movieListAdapter
         this.gridView.setOnScrollListener(GridScrollListener())
 
-        this.refreshLayout.setOnRefreshListener { this.refreshMovieList(swipe = true) }
+        this.refreshLayout.setOnRefreshListener { this.loadMovies(swipe = true) }
 
         // Debouncer for loading events. This is mostly necessary for the search since the filtering
         // is done client-side. This probably pretty far from the ideal solution in many aspects,
@@ -102,7 +102,7 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("moviePage")) {
-            refreshMovieList(initial = true)
+            loadMovies(initial = true)
         }
     }
 
@@ -120,14 +120,14 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         filter = query!!
-        refreshMovieList()
+        loadMovies()
         return true
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText == "") {
             filter = ""
-            refreshMovieList()
+            loadMovies()
         }
         return true
     }
@@ -166,18 +166,27 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         }
     }
 
-    private fun refreshMovieList(filter: String = this.filter, swipe: Boolean = false, initial: Boolean = false) {
+    private fun loadMovies(swipe: Boolean = false, initial: Boolean = false, page: Int = 1) {
         if (!loadingMovies) {
             startLoading(swipe, initial)
-            movieService.getUpcomingMovies(1, filter)
-                    .subscribe({ movies ->
-                        this.moviePage = movies
-                        movieListAdapter.movies = movies.results
-                        stopLoading()
-                    }, {
-                        stopLoading()
-                        showError(it)
-                    })
+            val observable =
+                    if (this.filter.trim().isNotEmpty()) {
+                        movieService.searchMovies(this.filter, page)
+                    } else {
+                        movieService.getUpcomingMovies(page)
+                    }
+            observable.subscribe({ movies ->
+                this.moviePage = movies
+                if (page > 1) {
+                    movieListAdapter.movies = movieListAdapter.movies + movies.results
+                } else {
+                    movieListAdapter.movies = movies.results
+                }
+                stopLoading()
+            }, {
+                stopLoading()
+                showError(it)
+            })
         }
     }
 
@@ -201,16 +210,7 @@ class MovieListActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             if (lastItemCount == totalItemCount && !loadingMovies) {
                 val currentPage = moviePage
                 if (currentPage != null && currentPage.totalPages > currentPage.page) {
-                    startLoading()
-                    movieService.getUpcomingMovies(currentPage.page + 1, filter)
-                            .subscribe({ movies ->
-                                moviePage = movies
-                                movieListAdapter.movies = movieListAdapter.movies + movies.results
-                                stopLoading()
-                            }, {
-                                stopLoading()
-                                showError(it)
-                            })
+                    loadMovies(page = currentPage.page + 1)
                 }
             }
         }

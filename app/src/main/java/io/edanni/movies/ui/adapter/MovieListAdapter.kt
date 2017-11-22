@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso
 import io.edanni.movies.R
 import io.edanni.movies.infrastructure.api.dto.Movie
 import org.threeten.bp.DateTimeUtils
+import org.threeten.bp.LocalDate
 import org.threeten.bp.ZoneId
 import java.text.DateFormat
 import java.util.*
@@ -56,9 +57,17 @@ class MovieListAdapter(private val context: Context) : BaseAdapter() {
         movieTitle.text = movie.title.toUpperCase()
         genre.text = movie.genres.firstOrNull()?.name ?: ""
 
-        val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
-        val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        releaseDate.text = context.resources.getString(R.string.movie_releases_at, dateFormat.format(releaseDateAsDate))
+        if (movie.releaseDate != null) {
+            val dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
+            val releaseDateAsDate = DateTimeUtils.toDate(movie.releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+            if (movie.releaseDate.isAfter(LocalDate.now())) {
+                releaseDate.text = context.resources.getString(R.string.movie_releases_at, dateFormat.format(releaseDateAsDate))
+            } else {
+                releaseDate.text = context.resources.getString(R.string.movie_released_in, dateFormat.format(releaseDateAsDate))
+            }
+        } else {
+            releaseDate.text = ""
+        }
     }
 
     private fun onMovieClick(movie: Movie) = movieClickHandler(movie)
