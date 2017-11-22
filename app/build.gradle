@@ -51,9 +51,11 @@ dependencies {
     }
     implementation 'com.jakewharton.threetenabp:threetenabp:1.0.5'
 
-
     implementation 'com.squareup.picasso:picasso:2.5.2'
+
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
 }
